@@ -1,0 +1,38 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Label for the sort by preference -->
+    <string name="pref_sortby_label">Sort Movies by</string>
+
+    <!-- Label for sort by most popular option -->
+    <string name="pref_sortby_label_popularity">Most popular</string>
+
+    <!-- Label for sort by highest rated option -->
+    <string name="pref_sortby_label_ratings">Highest-rated</string>
+
+    <!-- Key name for sort by in SharedPreferences -->
+    <string name="pref_sortby_key" translatable="false">sortby</string>
+
+    <!-- Value in SharedPreferences for sort by most popular -->
+    <string name="pref_sortby_value_popularity" translatable="false">popularity</string>
+
+    <!-- Value in SharedPreferences for sort by highest rated -->
+    <string name="pref_sortby_value_ratings" translatable="false">ratings</string>
+
+    <!-- Default value in SharedPreferences for sort by-->
+    <string name="pref_sortby_value_default" translatable="false">popularity</string>
+
+    <!--list labels for sort by setting-->
+    <string-array name="pref_sortby_entries">
+        <item>@string/pref_sortby_label_popularity</item>
+        <item>@string/pref_sortby_label_ratings</item>
+    </string-array>
+    <!--list values for sort by setting-->
+    <string-array name="pref_sortby_entry_values">
+        <item>@string/pref_sortby_value_popularity</item>
+        <item>@string/pref_sortby_value_ratings</item>
+    </string-array>
+
+</resources>

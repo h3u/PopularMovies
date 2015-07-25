@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="action_settings">Settings</string>
+
+    <!--Loading hint on start screen-->
+    <string name="fragment_main_start_loading">One Moment please ...</string>
+
+</resources>
