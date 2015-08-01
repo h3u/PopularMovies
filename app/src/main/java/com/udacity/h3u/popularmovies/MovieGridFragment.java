@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 
 
 /**
- * A placeholder fragment containing a simple view.
+ * Fragment containing a grid of movie posters.
  */
-public class MainActivityFragment extends Fragment {
+public class MovieGridFragment extends Fragment {
 
-    public MainActivityFragment() {
+    public MovieGridFragment() {
     }
 
     @Override
