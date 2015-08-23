@@ -2,6 +2,7 @@ package com.udacity.h3u.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,10 +10,28 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    private final String LOG_TAG = this.getClass().getSimpleName();
+
+    private final String MOVIE_FRAGMENT_TAG = "MovieGrid";
+
+    private String mSortBy;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSortBy = PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
+                    .commit();
+        }
     }
 
 
@@ -29,14 +48,30 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // get actual sorting
+        String sort_by = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
+
+        // fetch movies with previous selected sort by value
+        if (!mSortBy.equalsIgnoreCase(sort_by)) {
+            MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager().findFragmentByTag(MOVIE_FRAGMENT_TAG);
+            fragment.updateMovies();
+            mSortBy = sort_by;
+        }
     }
 }

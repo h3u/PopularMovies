@@ -4,12 +4,17 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
+    // load api key and put it to build config
+    Properties localProperties = new Properties()
+    localProperties.load(new FileInputStream(file(project.rootProject.file("local.properties"))))
+
     defaultConfig {
         applicationId "com.udacity.h3u.popularmovies"
         minSdkVersion 16
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
+        buildConfigField "String", "API_KEY", localProperties["API_KEY"]
     }
     buildTypes {
         release {
@@ -19,9 +24,15 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.bumptech.glide:glide:3.6.1'
     compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.github.bluejamesbond:textjustify-android:2.1.0'
 }
