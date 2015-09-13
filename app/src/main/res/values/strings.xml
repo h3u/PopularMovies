@@ -21,4 +21,10 @@
     <string name="title_activity_detail">Detail</string>
     <string name="movie_detail_backdrop_description">Backdrop of movie</string>
 
+    <string name="movie_detail_reviews_label">Reviews</string>
+    <string name="movie_detail_author">Author Name</string>
+
+    <!-- movie review-->
+    <string name="title_activity_review">Review</string>
+    <string name="review_author_start">by</string>
 </resources>

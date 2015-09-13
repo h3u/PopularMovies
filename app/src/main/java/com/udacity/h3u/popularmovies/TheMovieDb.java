@@ -1,6 +1,7 @@
 package com.udacity.h3u.popularmovies;
 
 import retrofit.http.GET;
+import retrofit.http.Path;
 
 /**
  * Created by Uli Wucherer (u.wucherer@gmail.com) on 01/08/15.
@@ -20,9 +21,12 @@ public interface TheMovieDb {
     // keys to identify the parcelable objects
     public String MOVIE_LIST_KEY = "MOVIE_LIST";
     public String MOVIE_KEY = "MOVIE";
+    public String REVIEW_KEY = "REVIEW";
 
     // definition of discover movies endpoint
     @GET("/discover/movie")
     MovieList discoverMovies();
 
+    @GET("/movie/{id}/reviews")
+    ReviewList movieReviews(@Path("id") Long id);
 }
