@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/review_item"
+    android:id="@+id/video_item"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_material_dark">
     <ImageView
-        android:id="@+id/review_item_icon"
+        android:id="@+id/video_item_icon"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:paddingTop="2dp"
@@ -14,7 +14,7 @@
         android:layout_gravity="center_horizontal"
         android:src="@drawable/ic_comment_white_24dp"/>
     <TextView
-        android:id="@+id/review_item_author"
+        android:id="@+id/video_item_name"
         android:layout_width="72dp"
         android:layout_height="32dp"
         android:paddingLeft="8dp"

@@ -129,11 +129,38 @@
             ext:documentView_textAlignment="justified" />
 
         <LinearLayout
-            android:id="@+id/movie_detail_reviews_layout"
+            android:id="@+id/movie_detail_videos_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_below="@+id/movie_detail_overview"
+            android:visibility="visible"
+            android:paddingBottom="8dp">
+            <TextView
+                android:id="@+id/movie_detail_trailers_titel"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:background="@color/detail_movie_opacity_background"
+                android:textColor="@color/bright_foreground_material_dark"
+                android:textStyle="bold"
+                android:textSize="@dimen/abc_text_size_subhead_material"
+                android:text="@string/movie_detail_video_label"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/movie_detail_trailer_list"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/movie_detail_reviews_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@+id/movie_detail_videos_layout"
             android:visibility="gone"
             android:paddingBottom="8dp">
             <TextView

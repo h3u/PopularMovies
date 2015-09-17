@@ -29,4 +29,7 @@ public interface TheMovieDb {
 
     @GET("/movie/{id}/reviews")
     ReviewList movieReviews(@Path("id") Long id);
+
+    @GET("/movie/{id}/videos")
+    VideoList movieVideos(@Path("id") Long id);
 }

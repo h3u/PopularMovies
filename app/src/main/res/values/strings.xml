@@ -24,6 +24,8 @@
     <string name="movie_detail_reviews_label">Reviews</string>
     <string name="movie_detail_author">Author Name</string>
 
+    <string name="movie_detail_video_label">Trailer</string>
+
     <!-- movie review-->
     <string name="title_activity_review">Review</string>
     <string name="review_author_start">by</string>
