@@ -1,0 +1,13 @@
+{
+  "syntaxVersion": 3,
+  "projectPackageId": "com.udacity.h3u.popularmovies",
+  "authority": "com.udacity.h3u.popularmovies.provider",
+  "providerJavaPackage": "com.udacity.h3u.popularmovies.provider",
+  "providerClassName": "PopularMoviesProvider",
+  "sqliteOpenHelperClassName": "PopularMoviesSQLiteOpenHelper",
+  "sqliteOpenHelperCallbacksClassName": "PopularMoviesSQLiteOpenHelperCallbacks",
+  "databaseFileName": "popular_movies.db",
+  "databaseVersion": 1,
+  "enableForeignKeys": true,
+  "useAnnotations": true
+}

@@ -29,8 +29,9 @@
         </activity>
 
         <provider
-            android:name=".data.MovieProvider"
-            android:authorities="com.udacity.h3u.popularmovies.app" />
+            android:name="com.udacity.h3u.popularmovies.provider.PopularMoviesProvider"
+            android:authorities="com.udacity.h3u.popularmovies.provider"
+            android:exported="false" />
 
         <activity
             android:name=".DetailActivity"

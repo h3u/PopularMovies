@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,6 +33,8 @@ public class DetailFragment extends android.support.v4.app.Fragment {
     private LinearLayout mReviewViewLayout;
     private RecyclerView mVideoView;
     private LinearLayout mVideoViewLayout;
+    private ImageButton mFavoriteButton;
+    private TextView mFavoriteButtonLabel;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -81,6 +84,9 @@ public class DetailFragment extends android.support.v4.app.Fragment {
             movie = (Movie) intent.getExtras().getParcelable(TheMovieDb.MOVIE_KEY);
         }
 
+        mFavoriteButton = (ImageButton) rootView.findViewById(R.id.movie_detail_button_favorite);
+        mFavoriteButtonLabel = (TextView) rootView.findViewById(R.id.movie_detail_button_favorite_label);
+
         mReviewView = (RecyclerView) rootView.findViewById(R.id.movie_detail_review_list);
         mReviewViewLayout = (LinearLayout) rootView.findViewById(R.id.movie_detail_reviews_layout);
         mVideoView = (RecyclerView) rootView.findViewById(R.id.movie_detail_trailer_list);
@@ -114,6 +120,13 @@ public class DetailFragment extends android.support.v4.app.Fragment {
             TextView releaseDateView = (TextView) rootView.findViewById(R.id.movie_detail_release_date);
             releaseDateView.setText(movie.getRelease_date());
 
+            if (Util.isMovieFavorite(getActivity(), movie)) {
+                setButtonRemove();
+            } else {
+                setButtonAdd();
+            }
+            mFavoriteButton.setOnClickListener(favoriteButtonClickListener);
+
             // fill overview (synopsis)
             DocumentView overviewTextView = (DocumentView) rootView.findViewById(R.id.movie_detail_overview);
             overviewTextView.setText(movie.getOverview());
@@ -138,6 +151,33 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         }
 
         return rootView;
+    }
+
+    private View.OnClickListener favoriteButtonClickListener = new View.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+
+            if ("add" == mFavoriteButton.getTag()) {
+                Util.addFavorite(getActivity(), movie);
+                setButtonRemove();
+            } else {
+                Util.removeMovie(getActivity(), movie);
+                setButtonAdd();
+            }
+        }
+    };
+
+    private void setButtonRemove() {
+        mFavoriteButton.setImageResource(R.drawable.ic_remove_circle_white_48dp);
+        mFavoriteButtonLabel.setText(getText(R.string.movie_detail_toggle_remove));
+        mFavoriteButton.setTag("remove");
+    }
+
+    private void setButtonAdd() {
+        mFavoriteButton.setImageResource(R.drawable.ic_add_circle_white_48dp);
+        mFavoriteButtonLabel.setText(getText(R.string.movie_detail_toggle_add));
+        mFavoriteButton.setTag("add");
     }
 
     public class FetchReviewListTask extends AsyncTask<Long, Void, ReviewList> {

@@ -1,0 +1,91 @@
+{
+  "documentation": "A Movie that comes from api.themoviedb.org.",
+  "fields": [
+    {
+      "documentation": "Reference id of movie in themoviedb.org",
+      "name": "foreign_id",
+      "type": "Long",
+      "nullable": false,
+      "index": true
+    },
+    {
+      "documentation": "Path to backdrop image",
+      "name": "backdrop_path",
+      "type": "String",
+      "nullable": false
+    },
+    {
+      "documentation": "Original language",
+      "name": "original_language",
+      "type": "String",
+      "nullable": true
+    },
+    {
+      "documentation": "Original language",
+      "name": "original_title",
+      "type": "String",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie plot synopsis",
+      "name": "overview",
+      "type": "String",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie release date",
+      "name": "release_date",
+      "type": "String",
+      "nullable": false
+    },
+    {
+      "documentation": "Path to poster image",
+      "name": "poster_path",
+      "type": "String",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie popularity value",
+      "name": "popularity",
+      "type": "Float",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie title",
+      "name": "title",
+      "type": "String",
+      "nullable": true
+    },
+    {
+      "documentation": "Movie video",
+      "name": "video",
+      "type": "Boolean",
+      "defaultValue": false
+    },
+    {
+      "documentation": "Movie vote average",
+      "name": "vote_average",
+      "type": "Float",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie vote count",
+      "name": "vote_count",
+      "type": "Long",
+      "nullable": false
+    },
+    {
+      "documentation": "Movie is marked as favorite",
+      "name": "favorite",
+      "type": "Boolean",
+      "defaultValue": false
+    }
+  ],
+
+  "constraints": [
+    {
+      "name": "unique_id",
+      "definition": "UNIQUE (foreign_id) ON CONFLICT REPLACE"
+    }
+  ]
+}

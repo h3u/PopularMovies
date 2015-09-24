@@ -21,6 +21,9 @@
     <string name="title_activity_detail">Detail</string>
     <string name="movie_detail_backdrop_description">Backdrop of movie</string>
 
+    <string name="movie_detail_toggle_add">Add to favorites</string>
+    <string name="movie_detail_toggle_remove">Remove from favorites</string>
+
     <string name="movie_detail_reviews_label">Reviews</string>
     <string name="movie_detail_author">Author Name</string>
 
