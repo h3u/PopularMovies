@@ -79,26 +79,13 @@ public class MainActivity extends AppCompatActivity {
         if (!mSortBy.equalsIgnoreCase(sort_by)) {
 
             if (sort_by.equals("favorite")) {
-                FavoriteMovieGridFragment fragment = (FavoriteMovieGridFragment) getSupportFragmentManager()
-                        .findFragmentByTag(MOVIE_FAVORITE_FRAGMENT_TAG);
-                if (null != fragment) {
-                    fragment.update();
-                } else {
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
-                            .commit();
-                }
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
+                        .commit();
             } else {
-
-                MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager()
-                        .findFragmentByTag(MOVIE_FRAGMENT_TAG);
-                if (null != fragment) {
-                    fragment.update();
-                } else {
-                    getSupportFragmentManager().beginTransaction()
-                            .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
-                            .commit();
-                }
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
+                        .commit();
                 mSortBy = sort_by;
             }
         }
