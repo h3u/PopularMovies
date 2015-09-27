@@ -1,19 +1,16 @@
 package com.udacity.h3u.popularmovies;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+
+import com.udacity.h3u.popularmovies.adapter.MovieAdapter;
 
 import java.util.ArrayList;
 
@@ -26,9 +23,8 @@ import retrofit.client.Response;
 /**
  * Fragment containing a grid of movie posters.
  */
-public class MovieGridFragment extends Fragment {
+public class MovieGridFragment extends GridFragment implements GridFragment.Updateable {
 
-    private static final String LOG_TAG = "MovieGridFragment";
     private MovieAdapter movieAdapter;
     private MovieList movieList;
 
@@ -44,7 +40,7 @@ public class MovieGridFragment extends Fragment {
         // check for saved movie list object
         if (savedInstanceState == null || !savedInstanceState.containsKey(TheMovieDb.MOVIE_LIST_KEY)) {
             // not found -> create new list
-            updateMovies();
+            update();
         } else {
             // found -> re-create from instance state
             movieList = savedInstanceState.getParcelable(TheMovieDb.MOVIE_LIST_KEY);
@@ -62,22 +58,6 @@ public class MovieGridFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        return id == R.id.action_settings || super.onOptionsItemSelected(item);
-
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -92,12 +72,7 @@ public class MovieGridFragment extends Fragment {
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
 
                 Movie movie = (Movie) adapterView.getItemAtPosition(position);
-
-                if (movie != null) {
-                    Intent intent = new Intent(getActivity(), DetailActivity.class);
-                    intent.putExtra(TheMovieDb.MOVIE_KEY, movie);
-                    startActivity(intent);
-                }
+                startDetailWithIntent(movie);
             }
         });
 
@@ -105,7 +80,7 @@ public class MovieGridFragment extends Fragment {
     }
 
     // helper method that fetch movies with sorting value from shared preferences
-    public void updateMovies() {
+    public void update() {
 
         FetchMovieListTask task = new FetchMovieListTask();
 

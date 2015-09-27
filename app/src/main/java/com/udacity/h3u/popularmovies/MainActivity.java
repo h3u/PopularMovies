@@ -13,6 +13,7 @@ public class MainActivity extends AppCompatActivity {
     private final String LOG_TAG = this.getClass().getSimpleName();
 
     private final String MOVIE_FRAGMENT_TAG = "MovieGrid";
+    private final String MOVIE_FAVORITE_FRAGMENT_TAG = "FavoriteMovieGrid";
 
     private String mSortBy;
 
@@ -27,10 +28,17 @@ public class MainActivity extends AppCompatActivity {
                 .getDefaultSharedPreferences(this)
                 .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
-                    .commit();
+        if (null == savedInstanceState) {
+
+            if ("favorite".equals(mSortBy)) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
+                        .commit();
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
+                        .commit();
+            }
         }
     }
 
@@ -69,9 +77,30 @@ public class MainActivity extends AppCompatActivity {
 
         // fetch movies with previous selected sort by value
         if (!mSortBy.equalsIgnoreCase(sort_by)) {
-            MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager().findFragmentByTag(MOVIE_FRAGMENT_TAG);
-            fragment.updateMovies();
-            mSortBy = sort_by;
+
+            if (sort_by.equals("favorite")) {
+                FavoriteMovieGridFragment fragment = (FavoriteMovieGridFragment) getSupportFragmentManager()
+                        .findFragmentByTag(MOVIE_FAVORITE_FRAGMENT_TAG);
+                if (null != fragment) {
+                    fragment.update();
+                } else {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
+                            .commit();
+                }
+            } else {
+
+                MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager()
+                        .findFragmentByTag(MOVIE_FRAGMENT_TAG);
+                if (null != fragment) {
+                    fragment.update();
+                } else {
+                    getSupportFragmentManager().beginTransaction()
+                            .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
+                            .commit();
+                }
+                mSortBy = sort_by;
+            }
         }
     }
 }

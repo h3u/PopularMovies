@@ -1,7 +1,6 @@
-package com.udacity.h3u.popularmovies;
+package com.udacity.h3u.popularmovies.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,24 +9,27 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.udacity.h3u.popularmovies.R;
+import com.udacity.h3u.popularmovies.Util;
+import com.udacity.h3u.popularmovies.Video;
 
 import java.util.List;
 
 /**
  * Created by Uli Wucherer (u.wucherer@gmail.com) on 06/09/15.
  */
-public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
+public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> {
 
     private Context mContext;
-    private List<Review> mItems;
+    private List<Video> mItems;
 
-    public ReviewAdapter(Context context, List<Review> list) {
+    public VideoAdapter(Context context, List<Video> list) {
         mContext = context;
         mItems = list;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public Review mReview;
+        public Video mVideo;
 
         public final View mView;
         public final ImageView mImageView;
@@ -36,8 +38,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mImageView = (ImageView) view.findViewById(R.id.review_item_icon);
-            mTextView = (TextView) view.findViewById(R.id.review_item_author);
+            mImageView = (ImageView) view.findViewById(R.id.video_item_icon);
+            mTextView = (TextView) view.findViewById(R.id.video_item_name);
         }
 
         @Override
@@ -47,21 +49,21 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     }
 
     @Override
-    public ReviewAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+    public VideoAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(mContext)
-                .inflate(R.layout.review_list_item, null, false);
+                .inflate(R.layout.video_list_item, null, false);
         return new ViewHolder(view);
 
     }
 
     @Override
-    public void onBindViewHolder(ReviewAdapter.ViewHolder viewHolder, int i) {
-        final Review item = mItems.get(i);
-        viewHolder.mReview = item;
-        viewHolder.mTextView.setText(item.getAuthor());
+    public void onBindViewHolder(VideoAdapter.ViewHolder viewHolder, int i) {
+        final Video item = mItems.get(i);
+        viewHolder.mVideo = item;
+        viewHolder.mTextView.setText(item.getName());
 
         Glide.with(viewHolder.mImageView.getContext())
-                .load(R.drawable.ic_comment_white_24dp)
+                .load(R.drawable.ic_movie_white_48dp)
                 .fitCenter()
                 .into(viewHolder.mImageView);
 
@@ -69,11 +71,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
 
             @Override
             public void onClick(View v) {
+
                 Context context = v.getContext();
 
-                Intent intent = new Intent(context, ReviewActivity.class);
-                intent.putExtra(TheMovieDb.REVIEW_KEY, item);
-                context.startActivity(intent);
+                if ("YouTube".equals(item.getSite())) {
+                    Util.watchYoutubeVideo(context, item.getKey());
+                }
             }
         });
     }

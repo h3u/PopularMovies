@@ -16,6 +16,8 @@ import android.widget.TextView;
 
 import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
+import com.udacity.h3u.popularmovies.adapter.ReviewAdapter;
+import com.udacity.h3u.popularmovies.adapter.VideoAdapter;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;

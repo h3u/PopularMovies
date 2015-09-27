@@ -12,6 +12,9 @@
     <!-- Label for sort by highest rated option -->
     <string name="pref_sortby_label_ratings">Highest-rated</string>
 
+    <!-- Label for sort by favorite option -->
+    <string name="pref_sortby_label_favorite">Favorite</string>
+
     <!-- Key name for sort by in SharedPreferences -->
     <string name="pref_sortby_key" translatable="false">sortby</string>
 
@@ -21,6 +24,9 @@
     <!-- Value in SharedPreferences for sort by highest rated -->
     <string name="pref_sortby_value_ratings" translatable="false">vote_average</string>
 
+    <!-- Value in SharedPreferences for sort by favorite -->
+    <string name="pref_sortby_value_favorite" translatable="false">favorite</string>
+
     <!-- Default value in SharedPreferences for sort by-->
     <string name="pref_sortby_value_default" translatable="false">popularity</string>
 
@@ -28,11 +34,13 @@
     <string-array name="pref_sortby_entries">
         <item>@string/pref_sortby_label_popularity</item>
         <item>@string/pref_sortby_label_ratings</item>
+        <item>@string/pref_sortby_label_favorite</item>
     </string-array>
     <!--list values for sort by setting-->
     <string-array name="pref_sortby_entry_values">
         <item>@string/pref_sortby_value_popularity</item>
         <item>@string/pref_sortby_value_ratings</item>
+        <item>@string/pref_sortby_value_favorite</item>
     </string-array>
 
 </resources>

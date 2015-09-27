@@ -1,4 +1,4 @@
-package com.udacity.h3u.popularmovies;
+package com.udacity.h3u.popularmovies.adapter;
 
 
 import android.content.Context;
@@ -9,6 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.udacity.h3u.popularmovies.Movie;
+import com.udacity.h3u.popularmovies.R;
+import com.udacity.h3u.popularmovies.TheMovieDb;
 
 import java.util.List;
 

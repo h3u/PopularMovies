@@ -3,5 +3,5 @@
     android:layout_width="180dp"
     android:layout_height="270dp"
     android:id="@+id/image_movie_poster"
-    android:src="@drawable/movie_placeholder"
+    android:src="@drawable/ic_sync_white_24dp"
     android:scaleType="centerCrop" />

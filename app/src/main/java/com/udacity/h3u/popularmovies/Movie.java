@@ -3,6 +3,8 @@ package com.udacity.h3u.popularmovies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.udacity.h3u.popularmovies.provider.movie.MovieModel;
+
 /**
  * Movie
  * Represents a movie object an element in the response of /discover/movies
@@ -114,4 +116,22 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+    public Movie createBy(MovieModel model) {
+
+        id = model.getForeignId();
+        backdrop_path = model.getBackdropPath();
+        original_language = model.getOriginalLanguage();
+        original_title = model.getOriginalTitle();
+        overview = model.getOverview();
+        release_date = model.getReleaseDate();
+        poster_path = model.getPosterPath();
+        popularity = model.getPopularity();
+        title = model.getTitle();
+        video = model.getVideo();
+        vote_average = model.getVoteAverage();
+        vote_count = model.getVoteCount();
+
+        return this;
+    }
 }
