@@ -1,60 +1,58 @@
 package com.udacity.h3u.popularmovies;
 
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.udacity.h3u.popularmovies.adapter.MovieAdapter;
-
-import java.util.ArrayList;
-
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
+import com.udacity.h3u.popularmovies.adapter.MovieCursorAdapter;
+import com.udacity.h3u.popularmovies.provider.movie.MovieColumns;
+import com.udacity.h3u.popularmovies.provider.movie.MovieCursor;
+import com.udacity.h3u.popularmovies.provider.movie.MovieSelection;
 
 /**
  * Fragment containing a grid of movie posters.
  */
-public class MovieGridFragment extends GridFragment implements GridFragment.Updateable {
+public class MovieGridFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private MovieAdapter movieAdapter;
-    private MovieList movieList;
+    public final String LOG_TAG = this.getClass().getSimpleName();
+
+    private static final int LOADER_ID = 9;
+
+    private String mSortBy;
+    private MovieCursorAdapter movieAdapter;
 
     public MovieGridFragment() {
     }
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        movieAdapter = new MovieAdapter(getActivity(), new ArrayList<Movie>());
-
-        // check for saved movie list object
-        if (savedInstanceState == null || !savedInstanceState.containsKey(TheMovieDb.MOVIE_LIST_KEY)) {
-            // not found -> create new list
-            update();
-        } else {
-            // found -> re-create from instance state
-            movieList = savedInstanceState.getParcelable(TheMovieDb.MOVIE_LIST_KEY);
-            movieAdapter.clear();
-            for (Movie el : movieList.getResults()) {
-                movieAdapter.add(el);
-            }
-        }
+        SessionManager session = new SessionManager(getContext());
+        mSortBy = session.getSortBy();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(TheMovieDb.MOVIE_LIST_KEY, movieList);
-        super.onSaveInstanceState(outState);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main, menu);
+    }
+
+    protected void startDetailWithIntent(Movie movie) {
+        if (movie != null) {
+            Intent intent = new Intent(getActivity(), DetailActivity.class);
+            intent.putExtra(TheMovieDb.MOVIE_KEY, movie);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -63,6 +61,9 @@ public class MovieGridFragment extends GridFragment implements GridFragment.Upda
 
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
+        movieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+
         GridView gridview = (GridView) rootView.findViewById(R.id.grid_view_movies);
         gridview.setAdapter(movieAdapter);
 
@@ -70,79 +71,59 @@ public class MovieGridFragment extends GridFragment implements GridFragment.Upda
 
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
+                // CursorAdapter returns a cursor at the correct position for getItem(), or null
+                // if it cannot seek to that position.
 
-                Movie movie = (Movie) adapterView.getItemAtPosition(position);
-                startDetailWithIntent(movie);
+                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
+                if (null != cursor) {
+
+                    MovieCursor movieCursor = new MovieCursor(cursor);
+                    Movie movie = new Movie();
+                    movie.createBy(movieCursor);
+                    startDetailWithIntent(movie);
+                }
             }
         });
 
         return rootView;
     }
 
-    // helper method that fetch movies with sorting value from shared preferences
-    public void update() {
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        FetchMovieListTask task = new FetchMovieListTask();
+        Uri movieUri = MovieColumns.CONTENT_URI;
+        String sortOrder = MovieColumns.POPULARITY + " DESC";
+        MovieSelection filter = new MovieSelection();
 
-        String sort_by = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
-        task.execute(sort_by);
+        if (mSortBy.equalsIgnoreCase("favorite")) {
+            filter.favorite(true);
+            sortOrder = MovieColumns.TITLE + " ASC";
+        } else if (mSortBy.equalsIgnoreCase("vote_average")) {
+            sortOrder = MovieColumns.VOTE_AVERAGE + " DESC";
+        }
+
+        return new CursorLoader(
+                getActivity(),
+                movieUri,
+                MovieColumns.ALL_COLUMNS,
+                filter.sel(), filter.args(), sortOrder
+        );
     }
 
-    public class FetchMovieListTask extends AsyncTask<String, Void, MovieList> {
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        movieAdapter.swapCursor(data);
+    }
 
-        private final String LOG_TAG = this.getClass().getSimpleName();
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        movieAdapter.swapCursor(null);
+    }
 
-        private MovieList mList;
-
-
-        @Override
-        protected MovieList doInBackground(String... params) {
-
-            final String sort_by = params[0];
-
-            RequestInterceptor interceptor = new RequestInterceptor() {
-                @Override
-                public void intercept(RequestFacade request) {
-                    request.addEncodedQueryParam("api_key", BuildConfig.API_KEY);
-                    request.addEncodedQueryParam("vote_count.gte", TheMovieDb.MINIMUM_VOTES);
-                    request.addEncodedQueryParam("sort_by", sort_by + ".desc");
-                }
-            };
-
-            RestAdapter restAdapter = new RestAdapter.Builder()
-                    .setEndpoint(TheMovieDb.BASE_URL)
-                    .setLogLevel(RestAdapter.LogLevel.BASIC)
-                    .setRequestInterceptor(interceptor)
-                    .build();
-
-            TheMovieDb apiRestAdapter = restAdapter.create(TheMovieDb.class);
-
-            try {
-                mList = apiRestAdapter.discoverMovies();
-
-            } catch (RetrofitError err) {
-                Response r = err.getResponse();
-                if (r != null) {
-                    Log.e(LOG_TAG, Integer.toString(r.getStatus()) + err.getMessage());
-                }
-            } catch (Exception e) {
-                Log.e(LOG_TAG, e.getMessage());
-            }
-
-            return mList;
-        }
-
-        @Override
-        protected void onPostExecute(MovieList list) {
-            // fill adapter with list from response
-            if (list != null && list.getTotal_results() > 0) {
-                movieList = list;
-                movieAdapter.clear();
-                for (Movie el : movieList.getResults()) {
-                    movieAdapter.add(el);
-                }
-            }
-        }
+    public void fetch(String sort_by) {
+        mSortBy = sort_by;
+        FetchMoviesTask task = new FetchMoviesTask(getActivity());
+        task.execute(mSortBy);
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 }

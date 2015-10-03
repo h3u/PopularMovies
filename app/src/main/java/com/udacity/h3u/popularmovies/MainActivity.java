@@ -2,7 +2,6 @@ package com.udacity.h3u.popularmovies;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,9 +11,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
 
-    private final String MOVIE_FRAGMENT_TAG = "MovieGrid";
-    private final String MOVIE_FAVORITE_FRAGMENT_TAG = "FavoriteMovieGrid";
-
+    private SessionManager mSessionManager;
     private String mSortBy;
 
 
@@ -23,25 +20,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mSortBy = PreferenceManager
-                .getDefaultSharedPreferences(this)
-                .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
-
-        if (null == savedInstanceState) {
-
-            if ("favorite".equals(mSortBy)) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
-                        .commit();
-            } else {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
-                        .commit();
-            }
-        }
+        mSessionManager = new SessionManager(this);
+        mSortBy = mSessionManager.getSortBy();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,23 +52,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        // get actual sorting
-        String sort_by = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(getString(R.string.pref_sortby_key), getString(R.string.pref_sortby_value_default));
+        // get sorting from preferences
+        String sortBy = mSessionManager.getSortBy();
+        MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_movie_grid);
 
-        // fetch movies with previous selected sort by value
-        if (!mSortBy.equalsIgnoreCase(sort_by)) {
-
-            if (sort_by.equals("favorite")) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new FavoriteMovieGridFragment(), MOVIE_FAVORITE_FRAGMENT_TAG)
-                        .commit();
-            } else {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container, new MovieGridFragment(), MOVIE_FRAGMENT_TAG)
-                        .commit();
-                mSortBy = sort_by;
-            }
+        if (sortBy != null
+                && (!sortBy.equalsIgnoreCase(mSortBy) || mSessionManager.needUpdate(sortBy)) ) {
+            mSortBy = sortBy;
+            fragment.fetch(mSortBy);
+            mSessionManager.setLastUpdate(mSortBy);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.udacity.h3u.popularmovies;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -81,5 +82,24 @@ public class Util {
                 .putFavorite(true);
 
         context.getContentResolver().insert(movieItem.uri(), movieItem.values());
+    }
+
+    public static boolean movieExist(Context context, Movie movie) {
+        boolean exist = false;
+        String[] projection = { MovieColumns._ID };
+
+        MovieSelection filter = new MovieSelection();
+        filter.foreignId(movie.getId());
+
+        Cursor cursor = context.getContentResolver().query(
+                MovieColumns.CONTENT_URI, projection,
+                filter.sel(), filter.args(), null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            exist = true;
+            cursor.close();
+        }
+
+        return exist;
     }
 }
