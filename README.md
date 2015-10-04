@@ -19,5 +19,5 @@ Please add following line:
 - layout idea: change detail view to fill full background with backdrop image and put all elements in opacity views
 - change layout to material blue grey or similar
 - spinner to change sorting instead of setting activity or combination of both
-- figure out how to display grid view columns on small/big screens and portrait/landscape format
+- auto select first element of movie grid in 2 pane views after changing the sorting
 - add encryption/hiding for api_key https://rammic.github.io/2015/07/28/hiding-secrets-in-android-apps/

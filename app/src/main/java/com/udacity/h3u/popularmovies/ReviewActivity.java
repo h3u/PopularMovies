@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bluejamesbond.text.DocumentView;
-
 public class ReviewActivity extends AppCompatActivity {
 
     @Override
@@ -21,7 +19,9 @@ public class ReviewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(false);
+        if (null != actionBar) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+        }
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -75,7 +75,7 @@ public class ReviewActivity extends AppCompatActivity {
                     TextView authorTextView = (TextView) rootView.findViewById(R.id.movie_detail_review_author);
                     authorTextView.setText(getText(R.string.review_author_start)
                             + " " + review.getAuthor());
-                    DocumentView contentTextView = (DocumentView) rootView.findViewById(R.id.movie_detail_review_content);
+                    TextView contentTextView = (TextView) rootView.findViewById(R.id.movie_detail_review_content);
                     contentTextView.setText(review.getContent());
                     contentTextView.setContentDescription(review.getContent());
                 }

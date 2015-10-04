@@ -3,13 +3,11 @@ package com.udacity.h3u.popularmovies;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 
 import com.udacity.h3u.popularmovies.provider.movie.MovieColumns;
 import com.udacity.h3u.popularmovies.provider.movie.MovieContentValues;
-import com.udacity.h3u.popularmovies.provider.movie.MovieCursor;
 import com.udacity.h3u.popularmovies.provider.movie.MovieSelection;
 
 /**
@@ -32,56 +30,27 @@ public class Util {
         }
     }
 
-    public static boolean isMovieFavorite(Context context, Movie movie) {
-        boolean favorite = false;
-        String[] projection = { MovieColumns._ID, MovieColumns.FAVORITE };
-
-        MovieSelection filter = new MovieSelection();
-        filter.foreignId(movie.getId());
-
-        Cursor cursor = context.getContentResolver().query(
-                MovieColumns.CONTENT_URI, projection,
-                filter.sel(), filter.args(), null);
-
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            MovieCursor movieCursor = new MovieCursor(cursor);
-            favorite = movieCursor.getFavorite();
-            cursor.close();
-        }
-
-        return favorite;
-    }
-
-    public static boolean removeMovie(Context context, Movie movie) {
-
-        MovieSelection filter = new MovieSelection();
-        filter.foreignId(movie.getId());
-
-        int deleted = context.getContentResolver().delete(
-                MovieColumns.CONTENT_URI,
-                filter.sel(), filter.args());
-
-        return (deleted == 1);
-    }
-
-    public static void addFavorite(Context context, Movie movie) {
+    public static void addFavorite(Context context, Long movieId) {
 
         MovieContentValues movieItem = new MovieContentValues();
-        movieItem
-                .putForeignId(movie.getId())
-                .putBackdropPath(movie.getBackdrop_path())
-                .putOriginalTitle(movie.getOriginal_title())
-                .putTitle(movie.getOriginal_title())
-                .putOverview(movie.getOverview())
-                .putPopularity(movie.getPopularity())
-                .putPosterPath(movie.getPoster_path())
-                .putReleaseDate(movie.getRelease_date())
-                .putVoteAverage(movie.getVote_average())
-                .putVoteCount(movie.getVote_count())
-                .putFavorite(true);
+        movieItem.putFavorite(true);
+        saveMovieItem(context, movieId, movieItem);
+    }
 
-        context.getContentResolver().insert(movieItem.uri(), movieItem.values());
+    public static void removeFavorite(Context context, Long movieId) {
+
+        MovieContentValues movieItem = new MovieContentValues();
+        movieItem.putFavorite(false);
+        saveMovieItem(context, movieId, movieItem);
+    }
+
+    private static void saveMovieItem(Context context, Long movieId, MovieContentValues movieItem) {
+        MovieSelection filter = new MovieSelection();
+        filter.foreignId(movieId);
+
+        context.getContentResolver().update(
+                movieItem.uri(), movieItem.values(), filter.sel(), filter.args());
+
     }
 
     public static boolean movieExist(Context context, Movie movie) {

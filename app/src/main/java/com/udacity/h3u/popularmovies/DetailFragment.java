@@ -1,8 +1,13 @@
 package com.udacity.h3u.popularmovies;
 
-import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,12 +17,15 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bluejamesbond.text.DocumentView;
 import com.bumptech.glide.Glide;
 import com.udacity.h3u.popularmovies.adapter.ReviewAdapter;
 import com.udacity.h3u.popularmovies.adapter.VideoAdapter;
+import com.udacity.h3u.popularmovies.provider.movie.MovieColumns;
+import com.udacity.h3u.popularmovies.provider.movie.MovieCursor;
+import com.udacity.h3u.popularmovies.provider.movie.MovieSelection;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -27,16 +35,25 @@ import retrofit.client.Response;
 /**
  * Created by Uli Wucherer (u.wucherer@gmail.com) on 13/09/15.
  */
-public class DetailFragment extends android.support.v4.app.Fragment {
+public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
-    private Movie movie;
+    private static final int LOADER_ID = 77;
+
+    private Long mMovieId;
+    private RelativeLayout mDetailView;
     private RecyclerView mReviewView;
     private LinearLayout mReviewViewLayout;
     private RecyclerView mVideoView;
     private LinearLayout mVideoViewLayout;
     private ImageButton mFavoriteButton;
     private TextView mFavoriteButtonLabel;
+    private TextView mTitleView;
+    private TextView mRatingView;
+    private TextView mReleaseDateView;
+    private TextView mOverviewTextView;
+    private ImageView mPosterView;
+    private ImageView mBackdropView;
 
     public DetailFragment() {
         setHasOptionsMenu(true);
@@ -49,19 +66,10 @@ public class DetailFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(TheMovieDb.MOVIE_KEY, movie);
+        if (null != mMovieId) {
+            outState.putLong(TheMovieDb.MOVIE_KEY, mMovieId);
+        }
         super.onSaveInstanceState(outState);
-    }
-
-
-    protected void fetchReviews(Movie movie) {
-        FetchReviewListTask task = new FetchReviewListTask();
-        task.execute(movie.getId());
-    }
-
-    protected void fetchVideos(Movie movie) {
-        FetchVideoListTask task = new FetchVideoListTask();
-        task.execute(movie.getId());
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -79,13 +87,16 @@ public class DetailFragment extends android.support.v4.app.Fragment {
 
         // check for saved movie object
         if (savedInstanceState != null && savedInstanceState.containsKey(TheMovieDb.MOVIE_KEY)) {
-            movie = savedInstanceState.getParcelable(TheMovieDb.MOVIE_KEY);
+            mMovieId = savedInstanceState.getLong(TheMovieDb.MOVIE_KEY);
         } else {
-            // get movie from intent
-            Intent intent = getActivity().getIntent();
-            movie = (Movie) intent.getExtras().getParcelable(TheMovieDb.MOVIE_KEY);
+            // get mMovie from arguments
+            Bundle args = getArguments();
+            if (null != args && args.containsKey(TheMovieDb.MOVIE_KEY)) {
+                mMovieId = args.getLong(TheMovieDb.MOVIE_KEY);
+            }
         }
 
+        mDetailView = (RelativeLayout) rootView.findViewById(R.id.movie_detail_view);
         mFavoriteButton = (ImageButton) rootView.findViewById(R.id.movie_detail_button_favorite);
         mFavoriteButtonLabel = (TextView) rootView.findViewById(R.id.movie_detail_button_favorite_label);
 
@@ -93,63 +104,18 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         mReviewViewLayout = (LinearLayout) rootView.findViewById(R.id.movie_detail_reviews_layout);
         mVideoView = (RecyclerView) rootView.findViewById(R.id.movie_detail_trailer_list);
         mVideoViewLayout = (LinearLayout) rootView.findViewById(R.id.movie_detail_videos_layout);
+        mTitleView = (TextView) rootView.findViewById(R.id.movie_detail_title);
+        mRatingView = (TextView) rootView.findViewById(R.id.movie_detail_rating);
+        mReleaseDateView = (TextView) rootView.findViewById(R.id.movie_detail_release_date);
+        mOverviewTextView = (TextView) rootView.findViewById(R.id.movie_detail_overview);
+        mPosterView = (ImageView) rootView.findViewById(R.id.movie_detail_poster_thumbnail);
+        mBackdropView = (ImageView) rootView.findViewById(R.id.movie_detail_backdrop);
+
         setupRecyclerView(mReviewView);
         setupRecyclerView(mVideoView);
 
-        if (movie != null) {
-
-            fetchReviews(movie);
-            fetchVideos(movie);
-            // fill all views with movie data
-            // start with title
-            TextView titleView = (TextView) rootView.findViewById(R.id.movie_detail_title);
-            titleView.setText(movie.getOriginal_title());
-
-            // fill rating values
-            TextView ratingView = (TextView) rootView.findViewById(R.id.movie_detail_rating);
-            ratingView.setText(movie.getVote_average().toString()
-                    + " " + getString(R.string.movie_detail_rating)
-                    + " (" + movie.getVote_count() + ")");
-            ratingView.setContentDescription(
-                    getText(R.string.movie_detail_rating_description_average)
-                            + Float.toString(movie.getVote_average())
-                            + getText(R.string.movie_detail_rating_description_max_rating)
-                            + getText(R.string.movie_detail_rating_description_voting_count)
-                            + Long.toString(movie.getVote_count())
-            );
-
-            // fill release date
-            TextView releaseDateView = (TextView) rootView.findViewById(R.id.movie_detail_release_date);
-            releaseDateView.setText(movie.getRelease_date());
-
-            if (Util.isMovieFavorite(getActivity(), movie)) {
-                setButtonRemove();
-            } else {
-                setButtonAdd();
-            }
-            mFavoriteButton.setOnClickListener(favoriteButtonClickListener);
-
-            // fill overview (synopsis)
-            DocumentView overviewTextView = (DocumentView) rootView.findViewById(R.id.movie_detail_overview);
-            overviewTextView.setText(movie.getOverview());
-            overviewTextView.setContentDescription(
-                    getText(R.string.movie_detail_overview_description)
-                            + movie.getOriginal_title() + ": " + movie.getOverview());
-
-            // fill poster view
-            ImageView posterView = (ImageView) rootView.findViewById(R.id.movie_detail_poster_thumbnail);
-            String fullURL = TheMovieDb.IMAGE_URL + "/w154" + movie.getPoster_path();
-            Glide.with(getActivity()).load(fullURL).into(posterView);
-            posterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            posterView.setContentDescription(getText(R.string.movie_detail_thumbnail_description) + " " + movie.getOriginal_title());
-
-            // fill backdrop view
-            ImageView backdropView = (ImageView) rootView.findViewById(R.id.movie_detail_backdrop);
-            String backdropURL = TheMovieDb.IMAGE_URL + "/w780" + movie.getBackdrop_path();
-            Glide.with(getActivity()).load(backdropURL).into(backdropView);
-            backdropView.setContentDescription(getText(R.string.movie_detail_backdrop_description) + " " + movie.getOriginal_title());
-            backdropView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
+        if (null != mMovieId) {
+            mDetailView.setVisibility(View.VISIBLE);
         }
 
         return rootView;
@@ -161,10 +127,10 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         public void onClick(View v) {
 
             if ("add" == mFavoriteButton.getTag()) {
-                Util.addFavorite(getActivity(), movie);
+                Util.addFavorite(getActivity(), mMovieId);
                 setButtonRemove();
             } else {
-                Util.removeMovie(getActivity(), movie);
+                Util.removeFavorite(getActivity(), mMovieId);
                 setButtonAdd();
             }
         }
@@ -180,6 +146,56 @@ public class DetailFragment extends android.support.v4.app.Fragment {
         mFavoriteButton.setImageResource(R.drawable.ic_add_circle_white_48dp);
         mFavoriteButtonLabel.setText(getText(R.string.movie_detail_toggle_add));
         mFavoriteButton.setTag("add");
+    }
+
+    protected void fetchReviews(Movie movie) {
+        FetchReviewListTask task = new FetchReviewListTask();
+        task.execute(movie.getId());
+    }
+
+    protected void fetchVideos(Movie movie) {
+        FetchVideoListTask task = new FetchVideoListTask();
+        task.execute(movie.getId());
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
+        if (null != mMovieId) {
+            Uri movieUri = MovieColumns.CONTENT_URI;
+            MovieSelection filter = new MovieSelection();
+            filter.foreignId(mMovieId);
+
+            return new CursorLoader(
+                    getActivity(),
+                    movieUri,
+                    MovieColumns.ALL_COLUMNS,
+                    filter.sel(), filter.args(), null
+            );
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+        if (!data.moveToFirst()) {
+            return;
+        }
+        MovieCursor movieCursor = new MovieCursor(data);
+        Movie movie = new Movie();
+        movie.createBy(movieCursor);
+        fillViews(movie);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) { }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     public class FetchReviewListTask extends AsyncTask<Long, Void, ReviewList> {
@@ -288,5 +304,63 @@ public class DetailFragment extends android.support.v4.app.Fragment {
                 mVideoViewLayout.setVisibility(View.GONE);
             }
         }
+    }
+
+    private void fillViews(Movie movie) {
+
+        if (movie != null) {
+            fetchReviews(movie);
+            fetchVideos(movie);
+            // fill all views with movie data
+            // start with title
+            mTitleView.setText(movie.getOriginal_title());
+
+            // fill rating values
+            mRatingView.setText(movie.getVote_average().toString()
+                    + " " + getString(R.string.movie_detail_rating)
+                    + " (" + movie.getVote_count() + ")");
+            mRatingView.setContentDescription(
+                    getText(R.string.movie_detail_rating_description_average)
+                            + Float.toString(movie.getVote_average())
+                            + getText(R.string.movie_detail_rating_description_max_rating)
+                            + getText(R.string.movie_detail_rating_description_voting_count)
+                            + Long.toString(movie.getVote_count())
+            );
+
+            // fill release date
+            mReleaseDateView.setText(movie.getRelease_date());
+
+            if (movie.getFavorite()) {
+                setButtonRemove();
+            } else {
+                setButtonAdd();
+            }
+            mFavoriteButton.setOnClickListener(favoriteButtonClickListener);
+
+            // fill overview (synopsis)
+            mOverviewTextView.setText(movie.getOverview());
+            mOverviewTextView.setContentDescription(
+                    getText(R.string.movie_detail_overview_description)
+                            + movie.getOriginal_title() + ": " + movie.getOverview());
+
+            // fill poster view
+            Glide.with(getActivity())
+                    .load(TheMovieDb.IMAGE_URL + "/w154" + movie.getPoster_path())
+                    .into(mPosterView);
+            mPosterView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            mPosterView.setContentDescription(getText(R.string.movie_detail_thumbnail_description) + " " + movie.getOriginal_title());
+
+            // fill backdrop view
+            Glide.with(getActivity())
+                    .load(TheMovieDb.IMAGE_URL + "/w780" + movie.getBackdrop_path())
+                    .into(mBackdropView);
+            mBackdropView.setContentDescription(getText(R.string.movie_detail_backdrop_description) + " " + movie.getOriginal_title());
+            mBackdropView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+        }
+    }
+
+    public void switchInvisible() {
+        mDetailView.setVisibility(View.INVISIBLE);
     }
 }

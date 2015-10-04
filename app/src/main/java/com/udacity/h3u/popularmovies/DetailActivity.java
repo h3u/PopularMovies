@@ -10,10 +10,16 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container_detail, new DetailFragment())
-                    .commit();
-        }
+        Bundle arguments = new Bundle();
+        arguments.putLong(
+                TheMovieDb.MOVIE_KEY, getIntent().getLongExtra(TheMovieDb.MOVIE_KEY, -1));
+
+        DetailFragment fragment = new DetailFragment();
+        fragment.setArguments(arguments);
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.movie_detail_container, fragment)
+                .commit();
+
     }
 }

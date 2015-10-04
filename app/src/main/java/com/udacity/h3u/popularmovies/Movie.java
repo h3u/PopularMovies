@@ -3,7 +3,7 @@ package com.udacity.h3u.popularmovies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.udacity.h3u.popularmovies.provider.movie.MovieModel;
+import com.udacity.h3u.popularmovies.provider.movie.MovieCursor;
 
 /**
  * Movie
@@ -26,13 +26,11 @@ public class Movie implements Parcelable {
     private Boolean video;
     private Float vote_average;
     private Long vote_count;
+    // in-app usage
+    private Boolean favorite;
 
-    Movie() {}
-
-    Movie(Long id, String title) {
-        this.original_title = title;
-        this.id = id;
-        this.poster_path = "movie_placeholder";
+    Movie() {
+        favorite = false;
     }
 
     public Long getId() {
@@ -69,6 +67,10 @@ public class Movie implements Parcelable {
 
     public Long getVote_count() {
         return vote_count;
+    }
+
+    public Boolean getFavorite() {
+        return favorite;
     }
 
     @Override
@@ -117,7 +119,7 @@ public class Movie implements Parcelable {
         }
     };
 
-    public Movie createBy(MovieModel model) {
+    public Movie createBy(MovieCursor model) {
 
         id = model.getForeignId();
         backdrop_path = model.getBackdropPath();
@@ -131,6 +133,7 @@ public class Movie implements Parcelable {
         video = model.getVideo();
         vote_average = model.getVoteAverage();
         vote_count = model.getVoteCount();
+        favorite = model.getFavorite();
 
         return this;
     }

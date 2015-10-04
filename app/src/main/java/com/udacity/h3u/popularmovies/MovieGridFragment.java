@@ -1,6 +1,5 @@
 package com.udacity.h3u.popularmovies;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,11 +28,25 @@ public class MovieGridFragment extends Fragment implements LoaderManager.LoaderC
     public final String LOG_TAG = this.getClass().getSimpleName();
 
     private static final int LOADER_ID = 9;
+    private static final String GRID_POSITION = "key_grid_position";
 
     private String mSortBy;
     private MovieCursorAdapter movieAdapter;
+    private GridView mGridView;
+    private int mPosition = 0;
 
     public MovieGridFragment() {
+    }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement.
+     */
+    public interface Callback {
+        /**
+         * DetailFragmentCallback if an item has been selected.
+         */
+        public void onItemSelected(Long movieId);
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -47,14 +60,6 @@ public class MovieGridFragment extends Fragment implements LoaderManager.LoaderC
         inflater.inflate(R.menu.menu_main, menu);
     }
 
-    protected void startDetailWithIntent(Movie movie) {
-        if (movie != null) {
-            Intent intent = new Intent(getActivity(), DetailActivity.class);
-            intent.putExtra(TheMovieDb.MOVIE_KEY, movie);
-            startActivity(intent);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,26 +69,30 @@ public class MovieGridFragment extends Fragment implements LoaderManager.LoaderC
         movieAdapter = new MovieCursorAdapter(getActivity(), null, 0);
         getLoaderManager().initLoader(LOADER_ID, null, this);
 
-        GridView gridview = (GridView) rootView.findViewById(R.id.grid_view_movies);
-        gridview.setAdapter(movieAdapter);
+        mGridView = (GridView) rootView.findViewById(R.id.grid_view_movies);
+        mGridView.setAdapter(movieAdapter);
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView adapterView, View view, int position, long l) {
                 // CursorAdapter returns a cursor at the correct position for getItem(), or null
                 // if it cannot seek to that position.
-
                 Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
                 if (null != cursor) {
 
                     MovieCursor movieCursor = new MovieCursor(cursor);
-                    Movie movie = new Movie();
-                    movie.createBy(movieCursor);
-                    startDetailWithIntent(movie);
+                    ((Callback) getActivity()).onItemSelected(movieCursor.getForeignId());
+
+                    // save position
+                    mPosition = position;
                 }
             }
         });
+
+        if (null != savedInstanceState && savedInstanceState.containsKey(GRID_POSITION)) {
+            mPosition = savedInstanceState.getInt(GRID_POSITION);
+        }
 
         return rootView;
     }
@@ -113,6 +122,10 @@ public class MovieGridFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         movieAdapter.swapCursor(data);
+        if (mPosition != GridView.INVALID_POSITION) {
+            mGridView.setSelection(mPosition);
+            mGridView.smoothScrollToPosition(mPosition);
+        }
     }
 
     @Override
@@ -125,5 +138,13 @@ public class MovieGridFragment extends Fragment implements LoaderManager.LoaderC
         FetchMoviesTask task = new FetchMoviesTask(getActivity());
         task.execute(mSortBy);
         getLoaderManager().restartLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if (mPosition != GridView.INVALID_POSITION) {
+            outState.putInt(GRID_POSITION, mPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 }

@@ -7,12 +7,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MovieGridFragment.Callback {
 
     private final String LOG_TAG = this.getClass().getSimpleName();
+    private static final String MOVIE_DETAIL_FRAGMENT = "MovieDetailFragment";
 
     private SessionManager mSessionManager;
     private String mSortBy;
+    private boolean mTwoPane;
 
 
     @Override
@@ -21,7 +23,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mSessionManager = new SessionManager(this);
-        mSortBy = mSessionManager.getSortBy();
+
+        if (findViewById(R.id.movie_detail_container) != null) {
+            mTwoPane = true;
+
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail_container, new DetailFragment(), MOVIE_DETAIL_FRAGMENT)
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
+        }
     }
 
     @Override
@@ -54,14 +67,47 @@ public class MainActivity extends AppCompatActivity {
 
         // get sorting from preferences
         String sortBy = mSessionManager.getSortBy();
-        MovieGridFragment fragment = (MovieGridFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_movie_grid);
+        Boolean sortingChanged = false;
 
-        if (sortBy != null
-                && (!sortBy.equalsIgnoreCase(mSortBy) || mSessionManager.needUpdate(sortBy)) ) {
-            mSortBy = sortBy;
-            fragment.fetch(mSortBy);
-            mSessionManager.setLastUpdate(mSortBy);
+        if (null != mSortBy) {
+            sortingChanged = !sortBy.equalsIgnoreCase(mSortBy);
+        }
+        mSortBy = sortBy;
+
+        MovieGridFragment gridFragment = (MovieGridFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_movie_grid);
+        DetailFragment detailFragment = (DetailFragment) getSupportFragmentManager()
+                .findFragmentByTag(MOVIE_DETAIL_FRAGMENT);
+
+        if (sortingChanged || mSessionManager.needUpdate(sortBy)) {
+
+            if (null != gridFragment) {
+                gridFragment.fetch(mSortBy);
+
+                mSessionManager.setLastUpdate(mSortBy);
+            }
+            if (null != detailFragment && sortingChanged) {
+                detailFragment.switchInvisible();
+            }
+        }
+    }
+
+    @Override
+    public void onItemSelected(Long movieId) {
+        if (mTwoPane) {
+            // replace detail fragment
+            Bundle args = new Bundle();
+            args.putLong(TheMovieDb.MOVIE_KEY, movieId);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail_container, fragment, MOVIE_DETAIL_FRAGMENT)
+                    .commit();
+        } else {
+            Intent detail = new Intent(this, DetailActivity.class);
+            detail.putExtra(TheMovieDb.MOVIE_KEY, movieId);
+            startActivity(detail);
         }
     }
 }

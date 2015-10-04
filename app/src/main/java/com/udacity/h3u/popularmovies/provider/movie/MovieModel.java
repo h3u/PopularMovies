@@ -6,15 +6,13 @@
  */
 package com.udacity.h3u.popularmovies.provider.movie;
 
-import com.udacity.h3u.popularmovies.provider.base.BaseModel;
-
-import java.util.Date;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.udacity.h3u.popularmovies.provider.base.BaseModel;
+
 /**
- * A Movie that comes from api.themoviedb.org.
+ * A Movie that comes from content provider.
  */
 public interface MovieModel extends BaseModel {
 

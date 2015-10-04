@@ -4,25 +4,22 @@
     <string name="message_missing_network">Unable load movies, \ndid you enable networking ?</string>
 
     <!--movie grid view-->
-    <string name="movie_grid_item_content_description">Movie poster of </string>
+    <string name="movie_grid_item_content_description">Poster of the movie: </string>
 
     <!-- movie detail view -->
-    <string name="movie_detail_title">The Example Movie Title</string>
     <string name="movie_detail_rating_label">votes</string>
     <string name="movie_detail_rating">/ 10</string>
     <string name="movie_detail_rating_description_average">Average voting of </string>
     <string name="movie_detail_rating_description_max_rating">from a maximum of ten</string>
     <string name="movie_detail_rating_description_voting_count">Overall votings are </string>
     <string name="movie_detail_release_date_label">released</string>
-    <string name="movie_detail_release_date">0000-00-00</string>
     <string name="movie_detail_thumbnail_description">Thumbnail of movie</string>
-    <string name="movie_detail_overview">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.</string>
     <string name="movie_detail_overview_description">Synopsis of </string>
     <string name="title_activity_detail">Detail</string>
-    <string name="movie_detail_backdrop_description">Backdrop of movie</string>
+    <string name="movie_detail_backdrop_description">Backdrop of the movie: </string>
 
-    <string name="movie_detail_toggle_add">Add to favorites</string>
-    <string name="movie_detail_toggle_remove">Remove from favorites</string>
+    <string name="movie_detail_toggle_add">Added to favorites</string>
+    <string name="movie_detail_toggle_remove">Removed from favorites</string>
 
     <string name="movie_detail_reviews_label">Reviews</string>
     <string name="movie_detail_author">Author Name</string>
