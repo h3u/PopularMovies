@@ -1,27 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/video_item"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_material_dark">
+    style="@style/DetailListElementLayout">
     <ImageView
         android:id="@+id/video_item_icon"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="2dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_comment_white_24dp"/>
+        style="@style/DetailListElementImage"
+        android:src="@drawable/ic_play_circle_outline_white_24dp"/>
     <TextView
         android:id="@+id/video_item_name"
-        android:layout_width="72dp"
-        android:layout_height="32dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:gravity="center"
-        android:ellipsize="start"
-        android:textSize="@dimen/abc_text_size_body_1_material"
-        android:textColor="@color/bright_foreground_material_dark"
-        android:text="@string/movie_detail_author"/>
+        style="@style/DetailListElementText"/>
 </LinearLayout>

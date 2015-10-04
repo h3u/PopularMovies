@@ -6,10 +6,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.udacity.h3u.popularmovies.R;
 import com.udacity.h3u.popularmovies.Review;
 import com.udacity.h3u.popularmovies.ReviewActivity;
@@ -34,13 +32,11 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         public Review mReview;
 
         public final View mView;
-        public final ImageView mImageView;
         public final TextView mTextView;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mImageView = (ImageView) view.findViewById(R.id.review_item_icon);
             mTextView = (TextView) view.findViewById(R.id.review_item_author);
         }
 
@@ -64,10 +60,6 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         viewHolder.mReview = item;
         viewHolder.mTextView.setText(item.getAuthor());
 
-        Glide.with(viewHolder.mImageView.getContext())
-                .load(R.drawable.ic_comment_white_24dp)
-                .fitCenter()
-                .into(viewHolder.mImageView);
 
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
 

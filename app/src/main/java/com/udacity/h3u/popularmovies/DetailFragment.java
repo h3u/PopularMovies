@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.udacity.h3u.popularmovies.adapter.ReviewAdapter;
@@ -47,7 +48,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private RecyclerView mVideoView;
     private LinearLayout mVideoViewLayout;
     private ImageButton mFavoriteButton;
-    private TextView mFavoriteButtonLabel;
     private TextView mTitleView;
     private TextView mRatingView;
     private TextView mReleaseDateView;
@@ -98,7 +98,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         mDetailView = (RelativeLayout) rootView.findViewById(R.id.movie_detail_view);
         mFavoriteButton = (ImageButton) rootView.findViewById(R.id.movie_detail_button_favorite);
-        mFavoriteButtonLabel = (TextView) rootView.findViewById(R.id.movie_detail_button_favorite_label);
 
         mReviewView = (RecyclerView) rootView.findViewById(R.id.movie_detail_review_list);
         mReviewViewLayout = (LinearLayout) rootView.findViewById(R.id.movie_detail_reviews_layout);
@@ -128,9 +127,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             if ("add" == mFavoriteButton.getTag()) {
                 Util.addFavorite(getActivity(), mMovieId);
+                Toast.makeText(getActivity(), getText(R.string.movie_detail_toggle_add),
+                        Toast.LENGTH_SHORT).show();
                 setButtonRemove();
             } else {
                 Util.removeFavorite(getActivity(), mMovieId);
+                Toast.makeText(getActivity(), getText(R.string.movie_detail_toggle_remove),
+                        Toast.LENGTH_SHORT).show();
                 setButtonAdd();
             }
         }
@@ -138,13 +141,11 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void setButtonRemove() {
         mFavoriteButton.setImageResource(R.drawable.ic_remove_circle_white_48dp);
-        mFavoriteButtonLabel.setText(getText(R.string.movie_detail_toggle_remove));
         mFavoriteButton.setTag("remove");
     }
 
     private void setButtonAdd() {
         mFavoriteButton.setImageResource(R.drawable.ic_add_circle_white_48dp);
-        mFavoriteButtonLabel.setText(getText(R.string.movie_detail_toggle_add));
         mFavoriteButton.setTag("add");
     }
 
@@ -309,8 +310,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private void fillViews(Movie movie) {
 
         if (movie != null) {
-            fetchReviews(movie);
             fetchVideos(movie);
+            fetchReviews(movie);
             // fill all views with movie data
             // start with title
             mTitleView.setText(movie.getOriginal_title());
@@ -356,7 +357,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                     .into(mBackdropView);
             mBackdropView.setContentDescription(getText(R.string.movie_detail_backdrop_description) + " " + movie.getOriginal_title());
             mBackdropView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
         }
     }
 

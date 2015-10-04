@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.udacity.h3u.popularmovies.provider.movie.MovieColumns;
 import com.udacity.h3u.popularmovies.provider.movie.MovieContentValues;
@@ -34,22 +35,29 @@ public class Util {
 
         MovieContentValues movieItem = new MovieContentValues();
         movieItem.putFavorite(true);
-        saveMovieItem(context, movieId, movieItem);
+        if (saveMovieItem(context, movieId, movieItem)) {
+            Toast.makeText(context, context.getText(R.string.movie_detail_toggle_add),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static void removeFavorite(Context context, Long movieId) {
 
         MovieContentValues movieItem = new MovieContentValues();
         movieItem.putFavorite(false);
-        saveMovieItem(context, movieId, movieItem);
+        if (saveMovieItem(context, movieId, movieItem)) {
+            Toast.makeText(context, context.getText(R.string.movie_detail_toggle_remove),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private static void saveMovieItem(Context context, Long movieId, MovieContentValues movieItem) {
+    private static boolean saveMovieItem(Context context, Long movieId, MovieContentValues movieItem) {
         MovieSelection filter = new MovieSelection();
         filter.foreignId(movieId);
 
-        context.getContentResolver().update(
-                movieItem.uri(), movieItem.values(), filter.sel(), filter.args());
+        return (context.getContentResolver().update(
+                movieItem.uri(), movieItem.values(), filter.sel(), filter.args())
+                == 1);
 
     }
 
